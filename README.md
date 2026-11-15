@@ -56,7 +56,7 @@ The phone documented here passes all four.
 
 | 层 / Layer | 组件 / Components | 干什么 / What it does |
 |---|---|---|
-| 宿主层 / Host | rooted Android + SUKISU 内核级 root | 提供 shell 与系统调用 / Shell & syscalls |
+| 宿主层 / Host | rooted Android + 内核级 root | 提供 shell 与系统调用 / Shell & syscalls |
 | 系统层 / OS | Ubuntu chroot（真 chroot，非 proot）/ Ubuntu chroot (real, not proot) | 完整 Linux 用户态 / Full Linux userspace |
 | 智能层 / Agent | AI 运行时 + 工具调用协议 / Agent runtime + tool-call protocol | 规划、执行、验收 / Plan, execute, verify |
 | 记忆层 / Memory | 三层：运行时注入 → 文档 → 长期库 / 3-tier: runtime injection → documents → long-term store | 跨会话人格连续性 / Cross-session continuity |
@@ -95,6 +95,23 @@ The model gateway dropped streams. The AI traced the root cause: an upstream SSE
 - Service orchestration & keep-alive: multi-process supervision, boot autostart, crash recovery
 - 跨会话的 AI 工作记忆：今天的会话记得上周的决策与教训
 - Cross-session AI working memory: today's session remembers last week's decisions and lessons
+
+## 宿主共存设计 / Host coexistence design
+
+双重形态的难点不是「跑起来」，而是「跑起来之后宿主侧还能当普通手机用」。三项工程决策：
+
+The hard part of this dual form factor isn't getting it running — it's keeping the host usable as a normal phone afterwards. Three engineering decisions:
+
+1. **非标准路径 / Non-standard path** — chroot 落在非默认目录，规避以路径签名为特征的完整性扫描（大量检测只扫已知位置）
+   The chroot lives at a non-default location, defeating path-signature integrity scans (most checks only look at known locations)
+2. **专用授权桥 / Dedicated authorization bridge** — root 授权经专用桥接组件完成，宿主层不暴露常规 su 二进制，授权面收敛到单一受控通道
+   Root authorization flows through a dedicated bridge component; no conventional su binary is exposed at the host layer, converging the authorization surface to one controlled channel
+3. **服务化自启 / Service-mode autostart** — 宿主侧组件以系统服务形态常驻，开机自动拉起，不依赖任何用户手动操作
+   Host-side components run as persistent system services, auto-started at boot, with zero manual user action
+
+效果：金融类 App 的完整性检测与 chroot 工作站**并存于同一台设备**——日常支付、扫码、银行 App 与 Ghidra 编译任务互不干扰。
+
+Result: banking-grade integrity checks and the chroot workstation **coexist on the same device** — daily payments, QR scans, banking apps and Ghidra builds don't interfere with each other.
 
 ## 代价 / The costs (honest)
 

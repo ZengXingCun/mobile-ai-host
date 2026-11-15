@@ -113,6 +113,28 @@ The hard part of this dual form factor isn't getting it running — it's keeping
 
 Result: banking-grade integrity checks and the chroot workstation **coexist on the same device** — daily payments, QR scans, banking apps and Ghidra builds don't interfere with each other.
 
+## 功耗实测 / Measured power profile
+
+本节为实测数据（电池接口直读，8300 mAh，健康度 100%）：
+
+Measured directly from the battery sysfs interface (8300 mAh, 100% health):
+
+| 场景 / Scenario | 电流 / Current | 功率 / Power | 续航估算 / Runtime est. |
+|---|---|---|---|
+| 深度待机（AI 常驻，屏幕灭）/ Deep idle (agent resident, screen off) | 250–650 µA | 1–3 mW | 数周级 / weeks |
+| AI 会话态（编排+网络往返）/ Active AI session (orchestration + network) | ~400–600 mA | 1.5–2.5 W | 3–5 h |
+| 单核满载（编译/分析）/ Single-core full load | ~900 mA | ~4 W | — |
+| Ghidra 重分析（多核 JVM）/ Ghidra heavy analysis (multi-core JVM) | — | 4–6 W | ~1.5 h |
+
+要点 / Key takeaways:
+
+- **形态的功耗优势：待机时 AI 常驻只是毫瓦级开销**——Agent 进程挂着不干活时，整机回到深底噪，不比普通手机费电
+- The form factor's power advantage: a resident-but-idle agent costs milliwatts — the phone returns to deep-idle baseline, no more drain than a stock phone
+- **重活才有重功耗**：Ghidra/编译这类任务 1.5 小时量级，但这是「工作站模式」，插电干完就退出，不常态占用
+- Heavy power only for heavy work: Ghidra/compile jobs last ~1.5 h bursts — workstation mode, plug in, finish, exit; not a persistent state
+- 日常形态（AI 会话 + 待机混合）实测一整天无压力；极端场景（持续重分析）建议外接电源
+- Mixed daily usage (AI sessions + idle) lasts a full day with ease; sustained heavy analysis wants external power
+
 ## 代价 / The costs (honest)
 
 - root 导致部分金融/银行 App 检测失败，需要权衡

@@ -146,6 +146,37 @@ Measured directly from the battery sysfs interface (8300 mAh, 100% health):
 
 ---
 
+## 组装流程 / Build walkthrough
+
+零 → 一的完整路径（每步都是公开技术，难点在集成纪律）：
+
+The full zero-to-one path (every step is public knowledge; the hard part is integration discipline):
+
+1. **宿主侧模块层 / Host-side module layer** — 在模块管理器中安装两个核心模块：chroot 生命周期管理器 + 本形态的宿主桥接模块
+   Install two core modules via the module manager: a chroot lifecycle manager + this setup's host-bridge module
+   ![Module manager showing chroot manager and bridge modules](docs/screenshots/01-module-manager.jpg)
+2. **chroot 生命周期 / chroot lifecycle** — 独立 App 管理启动/停止/备份，控制台实时输出挂载与命名空间日志；开机自启开关在界面上一键启用
+   A standalone app manages start/stop/backup with live mount & namespace logs; boot autostart is one checkbox
+   ![Ubuntu chroot manager app](docs/screenshots/02-ubuntu-chroot-manager.jpg)
+3. **宿主共存调优 / Host coexistence tuning** — 调整 chroot 存放路径、授权通道与自启方式三项（见上文「宿主共存设计」），使金融类完整性检测与工作站并存
+   Tune the three coexistence levers (non-standard path, dedicated auth bridge, service autostart — see above) so banking-grade integrity checks and the workstation coexist
+4. **虚拟屏调试 / Virtual display for testing** — 通过桥接模块的虚拟屏能力，把被调试 App 拉起在隔离副屏上观察与操作，主屏不被占用、痕迹留在虚拟环境内
+   The bridge module's virtual-display capability runs target apps on an isolated secondary display for observation and control — the main display stays free, activity stays contained
+   ![Web UI with virtual display monitor panel](docs/screenshots/04-web-ui-virtual-display.jpg)
+5. **浏览器内工作台 / Browser-based workbench** — 在手机浏览器打开 Agent 的 Web 控制台，指令、文件、会话全在一个页面
+   Open the agent's web console in the phone browser — prompts, files, and sessions in one page
+   ![Web UI start page](docs/screenshots/03-web-ui-start.jpg)
+6. **模型接入 / Model onboarding** — 控制台内配置多家模型提供商（含本地聚合网关），任一模型可切换
+   Configure multiple model providers in the console (including local gateways); any model swappable
+   ![Model provider settings](docs/screenshots/08-model-providers.jpg)
+7. **会话运行 / Sessions in flight** — 上下文统计、Agent 编队视图、命令面板、插件市场、按需工具加载，全部跑在手机浏览器里
+   Context stats, agent fleet view, command palette, plugin market, on-demand tool loading — all in the phone browser
+   ![Command palette](docs/screenshots/10-command-palette.jpg)
+   ![Context statistics](docs/screenshots/05-context-stats.jpg)
+   ![Agent fleet view](docs/screenshots/06-agent-fleet.jpg)
+   ![Plugin market](docs/screenshots/07-plugin-market.jpg)
+   ![On-demand toolbox](docs/screenshots/09-lazy-toolbox.jpg)
+
 ## FAQ
 
 **Q: 为什么不用电脑？/ Why not a PC?**
@@ -160,8 +191,8 @@ Commercial AI phones ship a vendor-stationed feature: capability bounded by OTA,
 
 **Q: 能复制吗？/ Can this be replicated?**
 
-可以。路径：解锁引导加载器 → 刷 root 方案 → 部署 chroot → 装 Agent 运行时 → 搭记忆体系。每一步都是公开技术，难点在集成与维护纪律。
-Yes. The path: unlock bootloader → root → deploy chroot → install agent runtime → build memory tiers. Every step is public knowledge; the hard part is integration and maintenance discipline.
+可以。上面的「组装流程」就是完整路径：宿主模块层 → chroot → 共存调优 → 虚拟屏 → Web 控制台 → 模型接入。每一步都是公开技术，难点在集成与维护纪律。
+Yes. The build walkthrough above is the full path: host module layer → chroot → coexistence tuning → virtual display → web console → model onboarding. Every step is public knowledge; the hard part is integration and maintenance discipline.
 
 ---
 
